@@ -1,6 +1,20 @@
 version: '3.4'
 
 services:
+  dex:
+    image: dexidp/dex:v2.28.0
+    ports:
+      - 5556:5556
+      - 5557:5557
+      - 5558:5558
+    volumes:
+      - ./dex:/etc/dex
+    networks:
+      - roachnet
+    environment:
+      DEX_USER: $DEX_USER
+      DEX_PASS: $DEX_PASS
+
   rouch_cert_load:
     image: ubuntu
     volumes:
@@ -16,7 +30,7 @@ services:
     image: cockroachdb/cockroach:v20.2.6
     ports:
       - 26257:26257
-      - 8090:8080
+      - 8080:8080
     volumes:
       - roach1-data:/cockroach/cockroach-data
       - roach_certs:/cockroach/.cockroach-certs/:ro
@@ -27,6 +41,7 @@ services:
     command:
       - start
       - --certs-dir=/cockroach/.cockroach-certs/
+      - --accept-sql-without-tls
       - --advertise-addr=roach1
       - --join=roach1,roach2,roach3
 
@@ -43,6 +58,7 @@ services:
     command:
       - start
       - --certs-dir=/cockroach/.cockroach-certs/
+      - --accept-sql-without-tls
       - --advertise-addr=roach2
       - --join=roach1,roach2,roach3
 
@@ -58,6 +74,7 @@ services:
     command:
       - start
       - --certs-dir=/cockroach/.cockroach-certs/
+      - --accept-sql-without-tls
       - --advertise-addr=roach3
       - --join=roach1,roach2,roach3
 
