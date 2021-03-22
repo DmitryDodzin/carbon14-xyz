@@ -1,0 +1,72 @@
+version: '3.4'
+
+services:
+  rouch_cert_load:
+    image: ubuntu
+    volumes:
+      - ./cert:/cockroach/source
+      - roach_certs:/cockroach/target
+    command:
+      - sh
+      - -c
+      - "cp /cockroach/source/* /cockroach/target && chmod 700 /cockroach/target/*"
+
+
+  roach1:
+    image: cockroachdb/cockroach:v20.2.6
+    ports:
+      - 26257:26257
+      - 8090:8080
+    volumes:
+      - roach1-data:/cockroach/cockroach-data
+      - roach_certs:/cockroach/.cockroach-certs/:ro
+    networks:
+      - roachnet
+    depends_on:
+      - rouch_cert_load
+    command:
+      - start
+      - --certs-dir=/cockroach/.cockroach-certs/
+      - --advertise-addr=roach1
+      - --join=roach1,roach2,roach3
+
+
+  roach2:
+    image: cockroachdb/cockroach:v20.2.6
+    volumes:
+      - roach2-data:/cockroach/cockroach-data
+      - roach_certs:/cockroach/.cockroach-certs/:ro
+    networks:
+      - roachnet
+    depends_on:
+      - rouch_cert_load
+    command:
+      - start
+      - --certs-dir=/cockroach/.cockroach-certs/
+      - --advertise-addr=roach2
+      - --join=roach1,roach2,roach3
+
+  roach3:
+    image: cockroachdb/cockroach:v20.2.6
+    volumes:
+      - roach3-data:/cockroach/cockroach-data
+      - roach_certs:/cockroach/.cockroach-certs/:ro
+    networks:
+      - roachnet
+    depends_on:
+      - rouch_cert_load
+    command:
+      - start
+      - --certs-dir=/cockroach/.cockroach-certs/
+      - --advertise-addr=roach3
+      - --join=roach1,roach2,roach3
+
+networks:
+  roachnet:
+
+volumes:
+  roach1-data:
+  roach2-data:
+  roach3-data:
+  roach_certs:
+
