@@ -1,6 +1,11 @@
 version: '3.4'
 
 services:
+  ingress:
+    build: ./ingress
+    ports:
+      - 9999:9999
+
   dex:
     image: dexidp/dex:v2.28.0
     ports:
@@ -14,9 +19,13 @@ services:
     environment:
       DEX_USER: $DEX_USER
       DEX_PASS: $DEX_PASS
+    depends_on:
+      - roach1
+      - roach2
+      - roach3
 
   rouch_cert_load:
-    image: ubuntu
+    image: busybox
     volumes:
       - ./cert:/cockroach/source
       - roach_certs:/cockroach/target
