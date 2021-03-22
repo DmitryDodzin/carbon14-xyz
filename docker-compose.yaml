@@ -1,10 +1,18 @@
 version: '3.4'
 
 services:
-  ingress:
-    build: ./ingress
+  avatars: 
+    build: ./avatars
     ports:
-      - 9999:9999
+      - 3000:3000
+    networks:
+      - roachnet
+    environment:
+      PG_HOST: roach1
+      PG_PORT: 26257
+      PG_DBNAME: avatars
+      PG_USER: $AVATARS_USER
+      PG_PASSWORD: $AVATARS_PASS
 
   dex:
     image: dexidp/dex:v2.28.0
@@ -23,6 +31,11 @@ services:
       - roach1
       - roach2
       - roach3
+
+  ingress:
+    build: ./ingress
+    ports:
+      - 9999:9999
 
   rouch_cert_load:
     image: busybox
@@ -86,6 +99,7 @@ services:
       - --accept-sql-without-tls
       - --advertise-addr=roach3
       - --join=roach1,roach2,roach3
+
 
 networks:
   roachnet:
