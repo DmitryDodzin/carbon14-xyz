@@ -8,11 +8,11 @@ services:
     networks:
       - roachnet
     environment:
-      PG_HOST: roach1
-      PG_PORT: 26257
-      PG_DBNAME: avatars
-      PG_USER: $AVATARS_USER
-      PG_PASSWORD: $AVATARS_PASS
+      PGHOST: roach1
+      PGPORT: 26257
+      PGDATABASE: avatars
+      PGUSER: $AVATARS_USER
+      PGPASSWORD: $AVATARS_PASS
 
   dex:
     image: dexidp/dex:v2.28.0
@@ -35,7 +35,7 @@ services:
   ingress:
     build: ./ingress
     ports:
-      - 9999:9999
+      - 8443:8443
 
   rouch_cert_load:
     image: busybox
