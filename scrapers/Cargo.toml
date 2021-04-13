@@ -1,0 +1,9 @@
+[workspace]
+
+members = [
+  "twitch-api",
+  "twitch-profile-images"
+]
+
+[profile.release]
+opt-level = "s"
